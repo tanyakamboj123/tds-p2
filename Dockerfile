@@ -20,16 +20,16 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application files
 COPY app.py .
 COPY index.html .
-COPY entrypoint.sh .
+#COPY entrypoint.sh .
 
-# Copy environment file if it exists
-COPY .env* ./
+
 
 # Make entrypoint script executable
-RUN chmod +x entrypoint.sh
+#RUN chmod +x entrypoint.sh
 
 # Expose the port the app runs on
 EXPOSE 8000
 
 # Command to run the application
-CMD ["./entrypoint.sh"]
+#CMD ["./entrypoint.sh"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
