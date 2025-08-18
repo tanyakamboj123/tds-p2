@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+.venv/
+venv/
+.env
+*.db
+*.sqlite
+
+# VSCode / PyCharm
+.vscode/
+.idea/
+
+
+
+# Other
+*.log
+*.parquet
+*.duckdb
+*.tar
+*.zip
+*.pdf
+*.xlsx
+*.csv
+*.png
+*.tsv
