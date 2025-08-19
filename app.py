@@ -31,6 +31,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
+# Optional imports
 # Optional image conversion
 try:
     from PIL import Image
