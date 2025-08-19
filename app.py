@@ -86,12 +86,6 @@ from collections import defaultdict
 import time
 from langchain_google_genai import ChatGoogleGenerativeAI
 
-
-MAX_ARCHIVE_FILES = int(os.getenv("MAX_ARCHIVE_FILES", 50))
-MAX_FILE_BYTES    = int(os.getenv("MAX_FILE_BYTES", 25 * 1024 * 1024))  # 25MB per file in archives
-MAX_PDF_PAGES     = int(os.getenv("MAX_PDF_PAGES", 100))
-
-
 # Config
 GEMINI_KEYS = [os.getenv(f"gemini_api_{i}") for i in range(1, 11)]
 GEMINI_KEYS = [k for k in GEMINI_KEYS if k]
@@ -102,13 +96,10 @@ MODEL_HIERARCHY = [
     "gemini-2.5-flash-lite",
     "gemini-2.0-flash",
     "gemini-2.0-flash-lite"
-    "gemini-1.5-pro",          # widely available
-    "gemini-1.5-flash",
-    "gemini-pro"
 ]
 
 MAX_RETRIES_PER_KEY = 2
-TIMEOUT = 120
+TIMEOUT = 50
 QUOTA_KEYWORDS = ["quota", "exceeded", "rate limit", "403", "too many requests"]
 
 if not GEMINI_KEYS:
@@ -192,7 +183,11 @@ def parse_keys_and_types(raw_questions: str):
 
 #----------------------------
 # code added to handle pdf,tar etc files
+
 #----------------------------
+MAX_ARCHIVE_FILES = int(os.getenv("MAX_ARCHIVE_FILES", 50))
+MAX_FILE_BYTES    = int(os.getenv("MAX_FILE_BYTES", 25 * 1024 * 1024))  # 25MB per file in archives
+MAX_PDF_PAGES     = int(os.getenv("MAX_PDF_PAGES", 100))
 def _decode_text_bytes(b: bytes) -> str:
     # Try common encodings fast; fall back to chardet if available
     for enc in ("utf-8", "utf-16", "latin-1"):
