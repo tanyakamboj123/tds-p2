@@ -27,3 +27,4 @@ scikit-learn
 playwright
 docx
 chardet
+pdfplumber
