@@ -28,3 +28,4 @@ playwright
 docx
 chardet
 pdfplumber
+xmltodict
