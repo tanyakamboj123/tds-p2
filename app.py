@@ -10,11 +10,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import io
-import os
-import re
-import json
-import base64
-import tempfile
 import subprocess
 import logging
 from io import BytesIO
@@ -24,20 +19,11 @@ from fastapi.responses import JSONResponse
 from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi import FastAPI
 from dotenv import load_dotenv
-from .filehandler import load_any_file_to_dataframe
+from filehandler import load_any_file_to_dataframe
 
 import requests
 import pandas as pd
 import matplotlib.pyplot as plt
-import numpy as np
-
-# Optional imports
-# Optional image conversion
-try:
-    from PIL import Image
-    PIL_AVAILABLE = True
-except Exception:
-    PIL_AVAILABLE = False
 
 # LangChain / LLM imports (keep as you used)
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
@@ -45,6 +31,14 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.tools import tool
 from langchain.agents import create_tool_calling_agent, AgentExecutor
 
+sys.path.append(os.path.dirname(__file__))
+
+try:
+    from PIL import Image
+    PIL_AVAILABLE = True
+except Exception:
+    PIL_AVAILABLE = False
+    
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
