@@ -25,3 +25,5 @@ httpx
 torch
 scikit-learn
 playwright
+docx
+chardet

@@ -24,6 +24,7 @@ from fastapi.responses import JSONResponse
 from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi import FastAPI
 from dotenv import load_dotenv
+from filehandler import load_any_file_to_dataframe
 
 import requests
 import pandas as pd
@@ -64,10 +65,13 @@ MODEL_HIERARCHY = [
     "gemini-2.5-flash-lite",
     "gemini-2.0-flash",
     "gemini-2.0-flash-lite"
+    "gemini-1.5-pro",          # widely available
+    "gemini-1.5-flash",
+    "gemini-pro"
 ]
 
 MAX_RETRIES_PER_KEY = 2
-TIMEOUT = 30
+TIMEOUT = 120
 QUOTA_KEYWORDS = ["quota", "exceeded", "rate limit", "403", "too many requests"]
 
 if not GEMINI_KEYS:
@@ -589,48 +593,31 @@ async def analyze_data(request: Request):
         pickle_path = None
         df_preview = ""
         dataset_uploaded = False
-
+        
         if data_file:
             dataset_uploaded = True
-            filename = data_file.filename.lower()
+            filename = data_file.filename or "uploaded"
             content = await data_file.read()
-            from io import BytesIO
 
-            if filename.endswith(".csv"):
-                df = pd.read_csv(BytesIO(content))
-            elif filename.endswith((".xlsx", ".xls")):
-                df = pd.read_excel(BytesIO(content))
-            elif filename.endswith(".parquet"):
-                df = pd.read_parquet(BytesIO(content))
-            elif filename.endswith(".json"):
-                try:
-                    df = pd.read_json(BytesIO(content))
-                except ValueError:
-                    df = pd.DataFrame(json.loads(content.decode("utf-8")))
-            elif filename.endswith(".png") or filename.endswith(".jpg") or filename.endswith(".jpeg"):
-                try:
-                    if PIL_AVAILABLE:
-                        image = Image.open(BytesIO(content))
-                        image = image.convert("RGB")  # ensure RGB format
-                        df = pd.DataFrame({"image": [image]})
-                    else:
-                        raise HTTPException(400, "PIL not available for image processing")
-                except Exception as e:
-                    raise HTTPException(400, f"Image processing failed: {str(e)}")  
-            else:
-                raise HTTPException(400, f"Unsupported data file type: {filename}")
+            # Use the universal loader
+            df = load_any_file_to_dataframe(content, filename)
 
-            # Pickle for injection
+            # Pickle for injection (unchanged downstream)
             temp_pkl = tempfile.NamedTemporaryFile(suffix=".pkl", delete=False)
             temp_pkl.close()
             df.to_pickle(temp_pkl.name)
             pickle_path = temp_pkl.name
 
+            # Friendlier preview (works for archives, pdf, multi-sheets, etc.)
+            col_list = ", ".join(map(str, df.columns[:20]))
             df_preview = (
-                f"\n\nThe uploaded dataset has {len(df)} rows and {len(df.columns)} columns.\n"
-                f"Columns: {', '.join(df.columns.astype(str))}\n"
+                f"\n\nThe uploaded dataset resolves to a unified DataFrame with "
+                f"{len(df)} rows and {len(df.columns)} columns.\n"
+                f"Sample columns: {col_list}{' ...' if len(df.columns) > 20 else ''}\n"
                 f"First rows:\n{df.head(5).to_markdown(index=False)}\n"
             )
+
+
 
         # Build rules based on data presence
         if dataset_uploaded:
