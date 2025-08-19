@@ -24,7 +24,7 @@ from fastapi.responses import JSONResponse
 from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi import FastAPI
 from dotenv import load_dotenv
-from filehandler import load_any_file_to_dataframe
+from .filehandler import load_any_file_to_dataframe
 
 import requests
 import pandas as pd
